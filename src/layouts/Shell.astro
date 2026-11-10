@@ -1,0 +1,155 @@
+---
+import '../styles/global.css';
+import { copy, pathFor, profile, type Locale, type View } from '../data/site';
+interface Props {
+  locale: Locale;
+  view: View;
+  title: string;
+  description: string;
+  noindex?: boolean;
+}
+const { locale, view, title, description, noindex = false } = Astro.props;
+const t = copy[locale];
+const alternate = locale === 'en' ? 'zh' : 'en';
+const canonical = new URL(pathFor(view, locale), Astro.site);
+---
+
+<!doctype html>
+<html lang={locale === 'en' ? 'en' : 'zh-CN'}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#f5f3ec" />
+    <script is:inline src="/theme.js"></script>
+    <title>{title === 'Steven Huang' ? title : `${title} — Steven Huang`}</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    {noindex ? (
+      <meta name="robots" content="noindex" />
+    ) : (
+      <>
+        <link rel="canonical" href={canonical} />
+        <link
+          rel="alternate"
+          hreflang="en"
+          href={new URL(pathFor(view, 'en'), Astro.site)}
+        />
+        <link
+          rel="alternate"
+          hreflang="zh-CN"
+          href={new URL(pathFor(view, 'zh'), Astro.site)}
+        />
+        <link
+          rel="alternate"
+          hreflang="x-default"
+          href={new URL(pathFor(view, 'en'), Astro.site)}
+        />
+      </>
+    )}
+    <meta property="og:type" content="website" />
+    <meta
+      property="og:title"
+      content={title === 'Steven Huang' ? title : `${title} — Steven Huang`}
+    />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content={locale === 'en' ? 'en_US' : 'zh_CN'} />
+    <meta name="twitter:card" content="summary" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">
+      {t.skip}
+    </a>
+    <header class="site-header wrap">
+      <a
+        class="wordmark"
+        href={pathFor('home', locale)}
+        aria-label={`Steven Huang — ${t.home}`}
+      >
+        <svg width="19" height="19" viewBox="0 0 19 19" aria-hidden="true">
+          <path d="M7 0h5v7h7v5h-7v7H7v-7H0V7h7Z" fill="currentColor" />
+        </svg>
+        <span>
+          sh<span class="wordmark-dot">.</span>
+        </span>
+      </a>
+      <nav aria-label={locale === 'en' ? 'Main navigation' : '主导航'}>
+        {(['projects', 'notes', 'about'] as const).map((item) => (
+          <a
+            href={pathFor(item, locale)}
+            aria-current={
+              view === item ||
+              (item === 'projects' &&
+                ['skillfit', 'device-agent-arena'].includes(view))
+                ? 'page'
+                : undefined
+            }
+          >
+            {item === 'projects' ? t.work : t[item]}
+          </a>
+        ))}
+      </nav>
+      <div class="header-tools">
+        <a class="header-github" href={profile.github}>
+          GitHub <span aria-hidden="true">↗</span>
+        </a>
+        <a
+          class="language-link"
+          href={pathFor(view, alternate)}
+          lang={alternate === 'zh' ? 'zh-CN' : 'en'}
+          hreflang={alternate === 'zh' ? 'zh-CN' : 'en'}
+          aria-label={t.languageLabel}
+        >
+          {t.language}
+        </a>
+        <button
+          class="theme-toggle"
+          type="button"
+          aria-label={t.theme}
+          aria-pressed="false"
+          hidden
+        >
+          <svg
+            class="moon"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.6"
+            aria-hidden="true"
+          >
+            <path d="M20.7 14.2A9 9 0 0 1 9.8 3.3a9 9 0 1 0 10.9 10.9Z" />
+          </svg>
+          <svg
+            class="sun"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.6"
+            aria-hidden="true"
+          >
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.4 1.4m11.2 11.2L19 19M5 19l1.4-1.4M17.6 6.4 19 5" />
+          </svg>
+        </button>
+      </div>
+    </header>
+    <main id="main" class="wrap">
+      <slot />
+    </main>
+    <footer class="site-footer wrap">
+      <div>
+        <a href={pathFor('home', locale)}>Steven Huang</a>
+        <span>{t.footer}</span>
+      </div>
+      <p>
+        © {new Date().getUTCFullYear()} <span aria-hidden="true">·</span> Hong
+        Kong
+      </p>
+    </footer>
+  </body>
+</html>

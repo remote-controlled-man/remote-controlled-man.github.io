@@ -1,0 +1,70 @@
+---
+interface Props {
+  kind: 'skillfit' | 'device-agent-arena';
+  locale: 'en' | 'zh';
+}
+const { kind, locale } = Astro.props;
+const zh = locale === 'zh';
+---
+
+{kind === 'skillfit' ? (
+  <div
+    class="project-diagram paired"
+    aria-label={
+      zh
+        ? '在相同任务上比较基线与新配置，检查质量、触发行为与成本'
+        : 'Compare baseline and treatment on the same tasks; inspect quality, trigger behavior, and cost'
+    }
+  >
+    <div class="diagram-top">
+      <span class="diagram-dot"></span>
+      {zh ? '相同任务 · 配对运行' : 'SAME TASKS · PAIRED RUNS'}
+    </div>
+    <div class="pair-arms">
+      <div>
+        <span class="arm-letter">A</span>
+        <span>{zh ? '基线配置' : 'Baseline'}</span>
+      </div>
+      <span class="pair-divider">/</span>
+      <div>
+        <span class="arm-letter">B</span>
+        <span>{zh ? '新配置' : 'Treatment'}</span>
+      </div>
+    </div>
+    <div class="diagram-metrics">
+      <span>{zh ? '任务质量' : 'Quality'}</span>
+      <span>{zh ? '触发行为' : 'Behavior'}</span>
+      <span>{zh ? 'Token 成本' : 'Token cost'}</span>
+    </div>
+  </div>
+) : (
+  <div
+    class="project-diagram trajectory"
+    aria-label={
+      zh
+        ? '任务经过 Harness 与工具执行，检查最终状态和执行轨迹'
+        : 'A task runs through a harness and tools; evaluate final state and trajectory'
+    }
+  >
+    <div class="diagram-top">
+      <span class="diagram-dot"></span>
+      {zh ? '有状态任务 · 闭环执行' : 'STATEFUL TASKS · CLOSED LOOP'}
+    </div>
+    <div class="trajectory-flow">
+      <span>{zh ? '任务' : 'Task'}</span>
+      <span aria-hidden="true">→</span>
+      <strong>Harness</strong>
+      <span aria-hidden="true">→</span>
+      <span>{zh ? '工具' : 'Tools'}</span>
+    </div>
+    <div class="trajectory-return">
+      <span aria-hidden="true">↳</span>
+      {zh ? '观测 → 下一次决策' : 'observation → next decision'}
+      <span aria-hidden="true">↵</span>
+    </div>
+    <div class="diagram-metrics">
+      <span>{zh ? '最终状态' : 'Final state'}</span>
+      <span>{zh ? '完整轨迹' : 'Full trajectory'}</span>
+    </div>
+  </div>
+)}

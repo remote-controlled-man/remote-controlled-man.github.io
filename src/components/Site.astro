@@ -1,0 +1,318 @@
+---
+import Shell from '../layouts/Shell.astro';
+import { Image } from 'astro:assets';
+import lightWorkbench from '../assets/workbench-light.png';
+import darkWorkbench from '../assets/workbench-dark.png';
+import ProjectCard from './ProjectCard.astro';
+import ProjectDiagram from './ProjectDiagram.astro';
+import {
+  contributions,
+  copy,
+  notes,
+  pathFor,
+  profile,
+  projects,
+  type Locale,
+  type View,
+} from '../data/site';
+interface Props {
+  locale: Locale;
+  view: View;
+}
+const { locale, view } = Astro.props;
+const t = copy[locale];
+const project = projects.find((item) => item.id === view);
+const title =
+  view === 'home'
+    ? 'Steven Huang'
+    : project
+      ? project[locale].title
+      : view === 'projects'
+        ? t.work
+        : t[view as 'notes' | 'about'];
+const description =
+  view === 'home'
+    ? t.intro
+    : project
+      ? project[locale].summary
+      : view === 'projects'
+        ? t.projectsIntro
+        : view === 'notes'
+          ? t.notesPageIntro
+          : t.aboutIntro;
+---
+
+<Shell locale={locale} view={view} title={title} description={description}>
+  {view === 'home' && (
+    <>
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow location">
+            <span class="status-dot"></span>
+            {t.heroLabel}
+          </p>
+          <h1>
+            Steven Huang<span class="name-stop">.</span>
+          </h1>
+          <p class="hero-title">{t.heroTitle}</p>
+          <p class="hero-intro">{t.intro}</p>
+          <div class="hero-actions">
+            <a class="button" href={pathFor('projects', locale)}>
+              {t.explore}
+              <span aria-hidden="true">↗</span>
+            </a>
+            <a class="text-link" href={pathFor('about', locale)}>
+              {t.aboutLink}
+              <span aria-hidden="true">→</span>
+            </a>
+          </div>
+          <p class="hero-interests">{t.interests}</p>
+        </div>
+        <figure class="workbench">
+          <div class="art-mount">
+            <Image
+              class="desk-art light-art"
+              src={lightWorkbench}
+              alt={t.artAlt}
+              width={1200}
+              format="webp"
+              quality={85}
+              loading="eager"
+              fetchpriority="high"
+            />
+            <Image
+              class="desk-art dark-art"
+              src={darkWorkbench}
+              alt={t.artAlt}
+              width={1200}
+              format="webp"
+              quality={85}
+              loading="eager"
+            />
+          </div>
+          <figcaption>
+            <span class="eyebrow">{t.desk}</span>
+            <span>{t.deskCaption}</span>
+          </figcaption>
+        </figure>
+      </section>
+      <section class="work-section">
+        <header class="section-heading">
+          <div>
+            <p class="eyebrow section-index">
+              01 / {locale === 'en' ? 'PROJECTS' : '项目'}
+            </p>
+            <h2>{t.selected}</h2>
+            <p>{t.selectedIntro}</p>
+          </div>
+          <a class="text-link" href={pathFor('projects', locale)}>
+            {t.allWork}
+            <span aria-hidden="true">→</span>
+          </a>
+        </header>
+        <div class="project-grid">
+          {projects.map((item) => (
+            <ProjectCard project={item} locale={locale} />
+          ))}
+        </div>
+      </section>
+    </>
+  )}
+  {view === 'projects' && (
+    <>
+      <header class="page-intro">
+        <p class="eyebrow">01 / {locale === 'en' ? 'PROJECTS' : '项目'}</p>
+        <h1>{t.projectsTitle}</h1>
+        <p>{t.projectsIntro}</p>
+      </header>
+      <div class="project-grid standalone-projects">
+        {projects.map((item) => (
+          <ProjectCard project={item} locale={locale} />
+        ))}
+      </div>
+    </>
+  )}
+  {(view === 'home' || view === 'projects') && (
+    <section class="contributions-section">
+      <header class="section-heading">
+        <div>
+          <p class="eyebrow section-index">02 / OPEN SOURCE</p>
+          <h2>{t.openSource}</h2>
+          <p>{t.openSourceIntro}</p>
+        </div>
+      </header>
+      <div class="contribution-list">
+        {contributions.map((item) => (
+          <a class="contribution" href={item.url}>
+            <span class="contribution-project">
+              {item.project}
+              <span class="mono">{item.number}</span>
+            </span>
+            <span class="contribution-summary">{item[locale]}</span>
+            <span class="contribution-state">
+              <span class="merged-dot"></span>
+              {t.pr}
+              <span aria-hidden="true">↗</span>
+            </span>
+          </a>
+        ))}
+      </div>
+      <a
+        class="text-link history-link"
+        href="https://github.com/pulls?q=is%3Apr+is%3Amerged+author%3Aremote-controlled-man"
+      >
+        {t.fullHistory}
+        <span aria-hidden="true">↗</span>
+      </a>
+    </section>
+  )}
+  {view === 'notes' && (
+    <header class="page-intro">
+      <p class="eyebrow">03 / {locale === 'en' ? 'NOTES' : '笔记'}</p>
+      <h1>{t.notesTitle}</h1>
+      <p>{t.notesPageIntro}</p>
+    </header>
+  )}
+  {(view === 'home' || view === 'notes') && (
+    <section
+      class:list={['notes-section', { 'notes-standalone': view === 'notes' }]}
+    >
+      {view === 'home' && (
+        <header class="section-heading">
+          <div>
+            <p class="eyebrow section-index">
+              03 / {locale === 'en' ? 'NOTES' : '笔记'}
+            </p>
+            <h2>{t.notesHeading}</h2>
+            <p>{t.notesIntro}</p>
+          </div>
+          <a class="text-link" href={pathFor('notes', locale)}>
+            {t.allNotes}
+            <span aria-hidden="true">→</span>
+          </a>
+        </header>
+      )}
+      <div class="notes-list">
+        {notes.map((item) => (
+          <a class="note" href={item.url}>
+            <span class="note-number mono">{item.number}</span>
+            <div>
+              <span class="eyebrow">{item.kind}</span>
+              <h3>{item[locale].title}</h3>
+              <p>{item[locale].summary}</p>
+            </div>
+            <span class="note-arrow" aria-hidden="true">
+              ↗
+            </span>
+          </a>
+        ))}
+      </div>
+    </section>
+  )}
+  {view === 'about' && (
+    <>
+      <header class="page-intro about-intro">
+        <p class="eyebrow">04 / {locale === 'en' ? 'ABOUT' : '关于'}</p>
+        <h1>{t.aboutTitle}</h1>
+        <p>{t.aboutIntro}</p>
+      </header>
+      <div class="about-grid">
+        <div class="about-prose">
+          <section>
+            <h2>{t.aboutInterestTitle}</h2>
+            <p>{t.aboutInterest}</p>
+          </section>
+          <section>
+            <h2>{t.aboutApproachTitle}</h2>
+            <p>{t.aboutApproach}</p>
+          </section>
+          <section>
+            <h2>{t.aboutOutsideTitle}</h2>
+            <p>{t.aboutOutside}</p>
+          </section>
+        </div>
+        <aside class="about-aside">
+          <div>
+            <p class="eyebrow">{t.education}</p>
+            <h2>{t.university}</h2>
+            <p>{t.degree}</p>
+          </div>
+          <div>
+            <p class="eyebrow">{t.focus}</p>
+            <ul>
+              {t.focusItems.map((item) => (
+                <li>{item}</li>
+              ))}
+            </ul>
+          </div>
+          <a class="text-link" href={profile.github}>
+            GitHub<span aria-hidden="true">↗</span>
+          </a>
+          <a class="text-link" href={profile.linkedin}>
+            LinkedIn<span aria-hidden="true">↗</span>
+          </a>
+        </aside>
+      </div>
+    </>
+  )}
+  {project && (
+    <article class="project-detail">
+      <a class="text-link back-link" href={pathFor('projects', locale)}>
+        <span aria-hidden="true">←</span>
+        {t.back}
+      </a>
+      <header class="page-intro">
+        <p class="eyebrow">
+          {project.number} / {project.kind}
+        </p>
+        <h1>{project[locale].title}</h1>
+        <p class="detail-subtitle">{project[locale].subtitle}</p>
+        <p>{project[locale].summary}</p>
+        <div class="detail-tags mono">{project.tags.join(' / ')}</div>
+      </header>
+      <div class="detail-grid">
+        <div class="detail-prose">
+          <section>
+            <h2>{t.overview}</h2>
+            <p>{project[locale].problem}</p>
+          </section>
+          <section>
+            <h2>{t.approach}</h2>
+            <p>{project[locale].approach}</p>
+          </section>
+          <section>
+            <h2>{t.evidence}</h2>
+            <p>{project[locale].evidence}</p>
+          </section>
+        </div>
+        <aside class:list={['detail-aside', project.id]}>
+          <ProjectDiagram kind={project.id} locale={locale} />
+          <h2 class="eyebrow">{t.resources}</h2>
+          <a class="resource-link" href={project.github}>
+            {t.code}
+            <span aria-hidden="true">↗</span>
+          </a>
+          {project.urls.map((url, index) => (
+            <a class="resource-link" href={url}>
+              {project[locale].links[index]}
+              <span aria-hidden="true">↗</span>
+            </a>
+          ))}
+        </aside>
+      </div>
+    </article>
+  )}
+  {(view === 'home' || view === 'about') && (
+    <section class="contact-section">
+      <div>
+        <p class="eyebrow">{locale === 'en' ? 'SAY HELLO' : '打个招呼'}</p>
+        <h2>{t.contact}</h2>
+        <p>{t.contactIntro}</p>
+      </div>
+      <a class="contact-email" href={`mailto:${profile.email}`}>
+        {profile.email}
+        <span aria-hidden="true">↗</span>
+      </a>
+    </section>
+  )}
+</Shell>

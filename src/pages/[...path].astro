@@ -1,0 +1,15 @@
+---
+import Site from '../components/Site.astro';
+import { routes, type Locale, type View } from '../data/site';
+export function getStaticPaths() {
+  return (['en', 'zh'] as const).flatMap((locale) =>
+    Object.entries(routes).map(([view, route]) => {
+      const path = `${locale === 'zh' ? 'zh/' : ''}${route}`.replace(/\/$/, '');
+      return { params: { path: path || undefined }, props: { locale, view } };
+    }),
+  );
+}
+const { locale, view } = Astro.props as { locale: Locale; view: View };
+---
+
+<Site locale={locale} view={view} />

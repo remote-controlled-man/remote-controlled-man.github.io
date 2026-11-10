@@ -1,0 +1,41 @@
+---
+import { pathFor, copy, type Locale, projects } from '../data/site';
+import ProjectDiagram from './ProjectDiagram.astro';
+interface Props {
+  project: (typeof projects)[number];
+  locale: Locale;
+}
+const { project, locale } = Astro.props;
+const text = project[locale];
+---
+
+<article class:list={['project-card', project.id]}>
+  <div class="project-card-heading">
+    <span class="eyebrow">
+      {project.number} / {project.kind}
+    </span>
+    <a
+      class="code-link"
+      href={project.github}
+      aria-label={`${text.title} — ${copy[locale].code}`}
+    >
+      GitHub <span aria-hidden="true">↗</span>
+    </a>
+  </div>
+  <h3>
+    <a href={pathFor(project.id, locale)}>
+      {text.title}
+      <span class="project-arrow" aria-hidden="true">
+        ↗
+      </span>
+    </a>
+  </h3>
+  <p>{text.summary}</p>
+  <ProjectDiagram kind={project.id} locale={locale} />
+  <div class="project-card-footer">
+    <span>{project.tags.slice(0, 2).join(' / ')}</span>
+    <a href={pathFor(project.id, locale)}>
+      {copy[locale].readCase} <span aria-hidden="true">→</span>
+    </a>
+  </div>
+</article>
